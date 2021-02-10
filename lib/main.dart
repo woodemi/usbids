@@ -20,15 +20,16 @@ class MyApp extends StatelessWidget {
 }
 
 class Home extends StatelessWidget {
+  // TODO load date from env
+  final date = 'Feb 10, 2021';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Updated at $date'),
       ),
-      body: SingleChildScrollView(
-        child: _buildTable(),
-      ),
+      body: _buildBody(),
     );
   }
 
@@ -55,21 +56,39 @@ class Home extends StatelessWidget {
     return companies.map((e) => e.split(fieldDelimiter)).toList();
   }
 
-  Widget _buildTable() {
+  Widget _buildBody() {
     return FutureBuilder(
       future: _loadAssets(),
       builder: (context, snapshot) {
-        if (snapshot.hasError || !snapshot.hasData) return Container();
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
 
         List<List<dynamic>> data = snapshot.data;
-        return Table(
+        return Column(
+          children: [
+            Text('Companies ${data.length}'),
+            Expanded(
+              child: _buildTable(data),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTable(List<List> data) {
+    return Scrollbar(
+      isAlwaysShown: true,
+      child: SingleChildScrollView(
+        child: Table(
           children: data.map((row) {
             return TableRow(
               children: row.map((e) => Text(e.toString())).toList(),
             );
           }).toList(),
-        );
-      },
+        ),
+      ),
     );
   }
 }

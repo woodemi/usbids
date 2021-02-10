@@ -34,10 +34,19 @@ class Home extends StatelessWidget {
 
   Future<List<List<dynamic>>> _loadAssets() async {
     var snapshot = await rootBundle.loadString("assets/usbids.snapshot");
-    const fieldDelimiter = '  ';
+    const paragraphDelimiter = '# Syntax:\n';
     const eol = '\n';
+    const fieldDelimiter = '  ';
 
-    var ignoreTab = snapshot.split(eol)
+    var paragraphs = snapshot.split(paragraphDelimiter);
+    var simplifiedParagraphs = paragraphs.map((paragraph) {
+      return paragraph.split(eol)
+        ..removeWhere((line) => line.startsWith('#'))
+        ..removeWhere((line) => line.trim().isEmpty);
+    }).toList();
+    var mainParagraph = simplifiedParagraphs[1];
+
+    var ignoreTab = mainParagraph
       ..removeWhere((element) => element.startsWith('\t'));
     var companies = ignoreTab.map((e) => e
         .replaceFirst(fieldDelimiter, '&&')
